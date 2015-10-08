@@ -14,7 +14,7 @@
                 <th>Remove?</th>
             </tr>
             <tr ng-repeat="person in people" ng-mousedown="" id="person_{{ person.id }}">
-                <td id="person_{{ person.id }}_id"> <a href="" ng-click="editUser( person.id )">{{ person.id }} </a></td>
+                <td id="person_{{ person.id }}_id"> <a href="" ng-click="goto( '/account/' + person.id )">{{ person.id }} </a></td>
                 <td id="person_{{ person.id }}_email"> <a href="" ng-click="editUser( person.id )">{{ person.email }} </a></td>
                 <td id="person_{{ person.id }}_fname"> {{ person.fname }} </td>
                 <td id="person_{{ person.id }}_lname"> {{ person.lname }} </td>
@@ -23,7 +23,7 @@
                 <td id="person_{{ person.id }}_remove"> <a ng-click="remove( person.id )"><i class="glyphicon glyphicon-remove"></i></a> </td>
             </tr>
             <tr>
-                <td colspan="7" id="user-add"><a href="" ng-click="addUser()"><i class="glyphicon glyphicon-plus"></i> Add</a></td>
+                <td colspan="7" id="user-add"><a href="" ng-click="goto('/account')"><i class="glyphicon glyphicon-plus"></i> Add</a></td>
             </tr>
         </table>
     </div>

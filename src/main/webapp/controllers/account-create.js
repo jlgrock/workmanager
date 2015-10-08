@@ -6,11 +6,13 @@
     module = angular.module(moduleName);
 
     module.controller('accountCreateCtrl',
-        function ($scope, $http, $log, $location, stateKeeper, processResponse) {
+        function ($scope, $http, $log, stateKeeper, commonUtils) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
+
+            $scope.goto = commonUtils.goto;
 
             /**
              * Define data for binding
@@ -30,22 +32,17 @@
 
                 $http.put('accounts', data).then(
                     function () {
-                        $log.info("Add Succeeded");
-                        $location.path("/accounts");
+                        commonUtils.goto("/accounts");
                     },
                     function (response) {
                         $log.error("Unable to add User ");
-                        processResponse.processErrorResponse(response);
+                        commonUtils.processErrorResponse(response);
                     }
                 );
             };
 
             $scope.setRole = function (role) {
                 $scope.selectedRole = role;
-            };
-
-            $scope.cancel = function() {
-                $location.path( "/accounts" );
             };
 
             /**

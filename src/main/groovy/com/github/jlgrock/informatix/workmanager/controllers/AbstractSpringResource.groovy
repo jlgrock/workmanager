@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 /**
  *
  */
-class AbstractSpringController {
-    private static Logger LOGGER = LoggerFactory.getLogger(AbstractSpringController.class)
+class AbstractSpringResource {
+    private static Logger LOGGER = LoggerFactory.getLogger(AbstractSpringResource.class)
 
     @ExceptionHandler(WebException.class)
     protected ResponseEntity<? extends ErrorResponse> processWebException(WebException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.message, e.httpStatus);
-        LOGGER.debug(errorResponse.toString())
+        LOGGER.debug(errorResponse.toString(), e)
         return new ResponseEntity<ErrorResponse>(errorResponse, errorResponse.httpStatus);
     }
 }

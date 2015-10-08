@@ -170,6 +170,18 @@ databaseChangeLog:
                             nullable: false
                             references: attachments(id)
                             foreignKeyName: batches_attachment_postvalidation_fk
+                    - column:
+                        name: compiled_attachment_id
+                        type: int
+                        constraints:
+                            nullable: true
+                            references: attachments(id)
+                            foreignKeyName: batchess_compiled_attachment_attachments_fk
+                    - column:
+                        name: status
+                        type: varchar(20)
+                        constraints:
+                            nullable: false
             - createTable:
                 tableName: assignments
                 columns:
@@ -200,12 +212,6 @@ databaseChangeLog:
                             references: attachments(id)
                             foreignKeyName: assignments_assignment_fk
                     - column:
-                        name: completed_attachment_id
-                        type: int
-                        constraints:
-                            references: attachments(id)
-                            foreignKeyName: attachments_completed_assignment_fk
-                    - column:
                         name: user_account_id
                         type: int
                         constraints:
@@ -216,6 +222,45 @@ databaseChangeLog:
                         type: boolean
                         constraints:
                             nullable: false
+                    - column:
+                        name: status
+                        type: varchar(20)
+                        constraints:
+                            nullable: false
+            - createTable:
+                tableName: batches_reviewed
+                columns:
+                    - column:
+                        name: batch_id
+                        type: int
+                        constraints:
+                            nullable: false
+                            references: batches(id)
+                            foreignKeyName: batches_reviewed_batches_fk
+                    - column:
+                        name: attachment_id
+                        type: int
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: batches_reviewed_attachments_fk
+            - createTable:
+                tableName: assignments_completed
+                columns:
+                    - column:
+                        name: assignment_id
+                        type: int
+                        constraints:
+                            nullable: false
+                            references: assignments(id)
+                            foreignKeyName: assignments_completed_batches_fk
+                    - column:
+                        name: attachment_id
+                        type: int
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: assignments_completed_attachments_fk
             - insert:
                 tableName: user_accounts
                 columns:

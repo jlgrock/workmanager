@@ -7,6 +7,7 @@ import com.github.jlgrock.informatix.workmanager.services.BatchService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -17,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile
  */
 @RestController
 @RequestMapping("/batches")
-class BatchController extends AbstractSpringController {
+class BatchResource extends AbstractSpringResource {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(AccountsController.class)
+    static final Logger LOGGER = LoggerFactory.getLogger(AccountsResource.class)
 
     @Autowired
     BatchService batchService
@@ -50,5 +51,15 @@ class BatchController extends AbstractSpringController {
             @RequestParam(required = false) String searchTerm) {
         LOGGER.debug("get searchTerm: ${searchTerm}")
         batchService.findAllBatches(searchTerm)
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value="/{id}/complete")
+    void startReview(@PathVariable int id) {
+        batchService.createCompiled(id)
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value="/{id}/complete")
+    void deleteReview(@PathVariable int id) {
+        batchService.deleteCompiled(id)
     }
 }

@@ -6,12 +6,14 @@
     module = angular.module(moduleName);
 
     module.controller('accountEditCtrl',
-        function ($scope, $routeParams, $http, $log, $location, stateKeeper, processResponse) {
+        function ($scope, $routeParams, $http, $log, commonUtils, stateKeeper) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
             $scope.userparams = {};
+
+            $scope.goto = commonUtils.goto;
 
             /**
              * Define data for binding
@@ -33,7 +35,7 @@
                     },
                     function(){
                         $log.error("Unable to delete User " + id);
-                        processResponse.processErrorResponse(response);
+                        commonUtils.processErrorResponse(response);
                     }
                 );
             };
@@ -52,19 +54,15 @@
 
                 $http.post('accounts/' + id, data).then(
                     function () {
-                        $location.path( "/accounts" );
+                        commonUtils.goto( "/accounts" );
                     }, function (response) {
-                        processResponse.processErrorResponse(response);
+                        commonUtils.processErrorResponse(response);
                     }
                 );
             };
 
             $scope.setRole = function (role) {
                 $scope.selectedRole = role;
-            };
-
-            $scope.cancel = function() {
-                $location.path( "/accounts" );
             };
 
             /**

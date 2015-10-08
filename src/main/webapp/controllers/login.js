@@ -6,30 +6,47 @@
     module = angular.module(moduleName);
 
     module.controller('loginCtrl',
-        function ($rootScope, $scope, $http, $log, $location, $route, security, stateKeeper, processResponse) {
+        function ($rootScope, $scope, $http, $log, $cookies, security, commonUtils, stateKeeper) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
 
+            $scope.goto = commonUtils.goto;
+
             $scope.credentials = {};
 
             $scope.forgotPassword = false;
 
+            $scope.rememberMe = angular.isDefined($cookies.get("userName"));
+
+            if (angular.isDefined($cookies.get("userName"))) {
+                $scope.credentials.email = $cookies.get("userName");
+            }
+
             $scope.login = function() {
+                if ($scope.rememberMe) {
+                    $cookies.put("userName", $scope.credentials.email);
+                }
                 security.authenticate($scope.credentials,
                     function (authenticated) {
                         if (authenticated) {
                             $rootScope.authenticated = true;
                             $log.log("Login succeeded")
-                            $location.path("/");
+                            $scope.goto("/");
                         } else {
                             $rootScope.authenticated = false;
-                            processResponse.printError("Login failed");
-                            $location.path("/security");
+                            commonUtils.printError("Login failed");
+                            $scope.goto("/security");
                         }
                     }
                 );
+            };
+
+            $scope.clickRememberMe = function() {
+                if(!$scope.rememberMe) {
+                    $cookies.remove("userName");
+                }
             };
 
             $scope.resetPassword = function () {
@@ -37,9 +54,9 @@
                 config.params = {email: $scope.credentials.forgottenEmail};
                 $http.get('accounts/reset', config).then(function () {
                     $rootScope.authenticated = false;
-                    $location.path("/");
+                    $scope.goto("/");
                 }, function (response) {
-                    processResponse.processErrorResponse(response);
+                    commonUtils.processErrorResponse(response);
                 });
             };
 

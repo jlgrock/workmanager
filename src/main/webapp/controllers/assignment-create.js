@@ -6,18 +6,22 @@
     module = angular.module(moduleName);
 
     module.controller('assignmentCreateCtrl',
-        function ($scope, $log, $http, $location, $routeParams, stateKeeper, fileUtils, processResponse) {
+        function ($scope, $log, $http, $routeParams, stateKeeper, commonUtils) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
 
+            $scope.goto = commonUtils.goto;
+
             $scope.file = null;
             $scope.people = [];
             $scope.batchId = parseInt($routeParams.batchId, 10);
 
+            $scope.goto = commonUtils.goto;
+
             if (isNaN($scope.batchId)) {
-                processResponse.printError("Cannot process with invalid batch Id");
+                commonUtils.printError("Cannot process with invalid batch Id");
                 return;
             }
 
@@ -34,31 +38,22 @@
                     },
                     function(response) {
                         $log.error("Unable to get Users for Assignment");
-                        processResponse.processErrorResponse(response);
+                        commonUtils.processErrorResponse(response);
                     }
                 )
             };
-
-            var success = function(){
-                $location.path( "/assignments");
-            };
-
 
             $scope.upload = function() {
                 var params = {
                     batchId: $scope.batchId,
                     userId: $scope.userSelected.id
                 };
-                fileUtils.uploadFileToUrl({
+                commonUtils.uploadFileToUrl({
                     uploadUrl: '/assignments',
                     file: $scope.file,
-                    success: success,
+                    success: angular.bind(this, $scope.goto, '/batches'),
                     params: params
                 });
-            };
-
-            $scope.cancel = function() {
-                $location.path( "/assignments");
             };
 
             /**

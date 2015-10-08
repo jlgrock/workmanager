@@ -8,6 +8,7 @@ import com.github.jlgrock.informatix.workmanager.domain.useraccount.UserAccount
 import com.github.jlgrock.informatix.workmanager.domain.useraccount.UserAccountDTO
 import com.github.jlgrock.informatix.workmanager.domain.useraccount.UserAccountRepository
 import com.github.jlgrock.informatix.workmanager.domain.useraccount.Role
+import com.github.jlgrock.informatix.workmanager.domain.useraccount.UserRoleRepository
 import com.github.jlgrock.informatix.workmanager.exceptions.UserException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,6 +24,9 @@ class AccountsService {
 
     @Autowired
     UserAccountRepository userAccountRepository
+
+    @Autowired
+    UserRoleRepository userRoleRepository
 
     @Autowired
     VerificationTokenRepository verificationTokenRepository

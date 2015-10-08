@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.security.SecurityProperties
+import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.context.web.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -47,7 +49,7 @@ import java.time.LocalDateTime
 @SpringBootApplication // is the same as @Configuration, @EnableConfiguration, and @ComponentScan
 @EnableConfigurationProperties // Looks for classes annotated with @ConfigurationProperties and populates them
 @RestController
-class ApplicationConfiguration {
+class ApplicationConfiguration extends SpringBootServletInitializer {
     static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
     @RequestMapping("/principal")
@@ -55,6 +57,7 @@ class ApplicationConfiguration {
         return user;
     }
 
+    // define Jackson serializer for LocalDateTime for REST services
     @Bean
     Module handleLocalDateTime() {
         SimpleModule module = new SimpleModule("EnhancedLocalDateTimeModule", new Version(0,1,0, "alpha"))
@@ -85,38 +88,43 @@ class ApplicationConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.
-                httpBasic()
-                .and()
-                    .authorizeRequests()
-                        .antMatchers("/", "/index.html", "/**/*.js", "/**/*.css", "/templates/*.html")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()
-                .and()
-                    .authorizeRequests()
-                        .antMatchers("/admin/**")
-                        .hasRole("ADMIN")
-                        .anyRequest()
-                        .authenticated()
-                .and()
-                    .csrf()
-                        .csrfTokenRepository(csrfTokenRepository())
-                .and()
-                    .logout()
-                        .logoutUrl("/logout")
-                        .logoutSuccessHandler(
-                            new LogoutSuccessHandler() {
-                                @Override
-                                void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                    // Do nothing
-                                }
-                            }
-                        )
-                .and()
-                    .exceptionHandling().accessDeniedPage("/403")
-                .and()
-                    .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
+
+            http.httpBasic();
+
+            http.authorizeRequests()
+                    // the following paths are just passed through
+                    .antMatchers("/", "/favicon.ico", "/index.html", "/**/*.js", "/**/*.css", "/templates/*.html").permitAll()
+                    // the following path requires you to be an admin user
+                    .antMatchers("/admin/**").hasRole("ADMIN")
+                    // all other requires authentication
+                    .anyRequest().authenticated()
+//                .and()
+//                    .authorizeRequests()
+//                        .antMatchers("/admin/**")
+//                        .hasRole("ADMIN")
+//                        .anyRequest()
+//                        .authenticated()
+            // use the
+            http.csrf().csrfTokenRepository(csrfTokenRepository())
+                    .and().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
+
+            //disable csrf
+            //http.csrf.disable()
+
+            // where the redirect sends you, override the success handler so that it doesn't forward you at all
+            http.logout()
+                .permitAll()
+                .logoutUrl("/logout")
+                .logoutSuccessHandler(
+                    new LogoutSuccessHandler() {
+                        @Override
+                        void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                            // Do nothing
+                        }
+                    }
+                )
+
+            //http.exceptionHandling().accessDeniedPage("/403")
 
         }
 
@@ -149,6 +157,11 @@ class ApplicationConfiguration {
             repository.setHeaderName("X-XSRF-TOKEN");
             return repository;
         }
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(ApplicationConfiguration.class);
     }
 
     static void main(String[] args) throws Exception {

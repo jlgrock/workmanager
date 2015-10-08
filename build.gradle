@@ -84,7 +84,7 @@ dependencies {
     )
 
     providedRuntime(
-            //"org.springframework.boot:spring-boot-starter-tomcat",
+            "org.springframework.boot:spring-boot-starter-tomcat",
 
     )
 
@@ -228,6 +228,6 @@ war {
 
 // Lets you remote debug the Spring Boot application.  Useful if you are having issues running it in your IDE
 // to use, just uncomment this out
-//bootRun {
-//    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y']
-//}
+bootRun {
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y']
+}

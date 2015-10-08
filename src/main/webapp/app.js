@@ -18,10 +18,10 @@
     module.config(function ($routeProvider, $httpProvider) {
 
         $routeProvider.when("/", {
-            redirectTo: "/assignments"
-        }).when('/assignments', {
-            templateUrl: 'templates/assignments.html',
-            controller: 'assignmentsCtrl'
+            redirectTo: "/batches"
+        }).when('/batches', {
+            templateUrl: 'templates/batches.html',
+            controller: 'batchesCtrl'
         }).when('/hours/:assignmentId', {
             templateUrl: 'templates/hours.html',
             controller: 'hoursCtrl'
@@ -34,6 +34,12 @@
         }).when('/assignment/:batchId', {
             templateUrl: 'templates/assignment-create.html',
             controller: 'assignmentCreateCtrl'
+        }).when('/assignment/:assignmentId/completedAssignments', {
+            templateUrl: 'templates/completedAssignmentHistory.html',
+            controller: 'uploadHistoryCtrl'
+        }).when('/assignment/:assignmentId/completedReviews', {
+            templateUrl: 'templates/completedAssignmentHistory.html',
+            controller: 'uploadHistoryCtrl'
         }).when('/assignment/complete/:assignmentId', {
             templateUrl: 'templates/assignment-complete.html',
             controller: 'assignmentCompleteCtrl'

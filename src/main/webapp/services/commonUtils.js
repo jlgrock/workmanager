@@ -5,8 +5,8 @@
     var moduleName = 'com.github.jlgrock.informatix.workmanager';
     module = angular.module(moduleName);
 
-    module.service('fileUtils', function ($http, $log, processResponse, $q, $timeout, $window) {
-        this.uploadFileToUrl = function (arg) {
+    module.service('commonUtils', function ($http, $log, stateKeeper, $q, $timeout, $location, $window) {
+        var uploadFileToUrl = function (arg) {
             if (!angular.isDefined(arg.file)) {
                 var str = "Cannot upload a file when no file is attached";
                 $log.error(str);
@@ -39,12 +39,11 @@
                 }
             }, function (response) {
                 $log.error("Unable to upload file.");
-                processResponse.processErrorResponse(response);
+                processErrorResponse(response);
             });
         };
 
-        this.download = function(urlLocation) {
-
+        var download = function(urlLocation) {
             var defer = $q.defer();
 
             $timeout(function() {
@@ -57,6 +56,50 @@
                     defer.reject('error');
                 });
             return defer.promise;
-        }
+        };
+
+        var downloadAttachment = function(id) {
+
+            commonUtils.download('attachments/' + id + '/download').then(
+                function () {
+                    $log.info("Attachment " + id + " downloaded");
+
+                }, function (response) {
+                    $log.error("Unable to download attachment " + id);
+                    processErrorResponse(response);
+                }
+            );
+        };
+
+        var goto = function(url){
+            $location.path( url );
+        };
+
+        var processErrorResponse = function (response) {
+            stateKeeper.clearAll();
+            stateKeeper.error.status = response.status;
+            if (response.data !== undefined && response.data.errorMsg !== undefined) {
+                var str = response.data.errorMsg;
+                stateKeeper.error.msg = str;
+                $log.log(str);
+            } else {
+                var str = response.statusText;
+                stateKeeper.error.msg = str;
+                $log.log(str);
+            }
+        };
+
+        var printError = function (str) {
+            stateKeeper.clearAll();
+            stateKeeper.error.msg = str;
+            $log.log(str);
+        };
+
+        this.uploadFileToUrl = uploadFileToUrl;
+        this.download = download;
+        this.downloadAttachment = downloadAttachment;
+        this.goto = goto;
+        this.processErrorResponse = processErrorResponse;
+        this.printError = printError;
     });
 })();

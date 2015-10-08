@@ -6,11 +6,13 @@
     module = angular.module(moduleName);
 
     module.controller('accountsCtrl',
-        function ($scope, $http, $log, $location, stateKeeper, processResponse) {
+        function ($scope, $http, $log, commonUtils, stateKeeper) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
+
+            $scope.goto = commonUtils.goto;
 
             /**
              * Define data for binding
@@ -42,7 +44,7 @@
                         $log.info("User " + id + " properly deleted");
                     }, function (response) {
                         $log.error("Unable to delete User " + id);
-                        processResponse.processErrorResponse($scope, response);
+                        commonUtils.processErrorResponse($scope, response);
                     });
                 }
             };
@@ -55,18 +57,10 @@
                             stateKeeper.clearAll();
                         }, function (response) {
                             $log.error("Unable to reset password for user " + id);
-                            processResponse.processErrorResponse($scope, response);
+                            commonUtils.processErrorResponse($scope, response);
                         }
                     );
                 }
-            };
-
-            $scope.addUser = function() {
-                $location.path( "/account" );
-            };
-
-            $scope.editUser = function(id) {
-                $location.path( "/account/" + id);
             };
 
             /**

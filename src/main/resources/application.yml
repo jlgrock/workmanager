@@ -11,7 +11,7 @@ spring:
             # spring.jpa.generate-ddl=true
             ddl-auto: none # vs create-drop, validate, or update
         database: PostgreSQL
-        #show-sql: true # enable when having issues with hibernate queries
+        show-sql: true # enable when having issues with hibernate queries
 
 # Define the maximum size of the file uploads.  These values were picked arbitrarily.
 multipart:

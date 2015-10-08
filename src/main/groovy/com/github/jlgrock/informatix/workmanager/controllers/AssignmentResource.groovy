@@ -2,6 +2,7 @@ package com.github.jlgrock.informatix.workmanager.controllers
 
 import com.github.jlgrock.informatix.workmanager.domain.assignment.AssignmentDTO
 import com.github.jlgrock.informatix.workmanager.domain.assignment.HoursDTO
+import com.github.jlgrock.informatix.workmanager.domain.attachment.AttachmentDTO
 import com.github.jlgrock.informatix.workmanager.exceptions.UploadException
 import com.github.jlgrock.informatix.workmanager.exceptions.UserException
 import com.github.jlgrock.informatix.workmanager.exceptions.WebException
@@ -16,9 +17,9 @@ import org.springframework.web.multipart.MultipartFile
  */
 @RestController
 @RequestMapping("/assignments")
-class AssignmentController extends AbstractSpringController {
+class AssignmentResource extends AbstractSpringResource {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class)
+    static final Logger LOGGER = LoggerFactory.getLogger(AssignmentResource.class)
 
     @Autowired
     AssignmentService assignmentService
@@ -94,5 +95,11 @@ class AssignmentController extends AbstractSpringController {
         LOGGER.debug("Removing hours for ${id}")
         assignmentService.clearHours(id)
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/completed")
+    List<AttachmentDTO> getCompletedHistory(@PathVariable int id) {
+        LOGGER.debug("get completed history for ${id}")
+        assignmentService.getCompletedHistory(id)
+    };
 
 }

@@ -3,9 +3,6 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotEmpty
-
-import javax.validation.constraints.NotNull
-
 /**
  *
  */
@@ -24,9 +21,6 @@ class UserAccountDTO {
     @NotEmpty
     @Email
     String email
-
-    @NotNull
-    Role role
 
     UserAccountDTO() {}
 

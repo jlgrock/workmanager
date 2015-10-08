@@ -6,11 +6,13 @@
     module = angular.module(moduleName);
 
     module.controller('batchCreateCtrl',
-        function ($scope, $log, $http, $location, stateKeeper, processResponse, fileUtils) {
+        function ($scope, $log, $http, stateKeeper, commonUtils) {
             /**
              * Handle State based info
              */
             $scope.error = stateKeeper.error;
+
+            $scope.goto = commonUtils.goto;
 
             /**
              * Define data for binding
@@ -24,20 +26,12 @@
                 }
             });
 
-            var success = function(){
-                $location.path( "/assignments");
-            };
-
             $scope.upload = function() {
-                fileUtils.uploadFileToUrl({
+                commonUtils.uploadFileToUrl({
                     file: $scope.file,
                     uploadUrl: '/batches',
-                    success: success
+                    success: angular.bind(this, $scope.goto, '/batches')
                 });
-            };
-
-            $scope.cancel = function() {
-                $location.path( "/assignments");
             };
 
             /**

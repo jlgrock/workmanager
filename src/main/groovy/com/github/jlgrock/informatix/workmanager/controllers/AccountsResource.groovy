@@ -16,12 +16,12 @@ import javax.validation.Valid
  */
 @RestController
 @RequestMapping("/accounts")
-class AccountsController extends AbstractSpringController {
+class AccountsResource extends AbstractSpringResource {
 
     @Autowired
     AccountsService accountsService
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AccountsController.class)
+    private static Logger LOGGER = LoggerFactory.getLogger(AccountsResource.class)
 
     @RequestMapping(method = RequestMethod.GET)
     Collection<UserAccount> get() {

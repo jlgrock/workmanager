@@ -6,20 +6,18 @@
     module = angular.module(moduleName);
 
     module.controller('navbarCtrl',
-        function ($rootScope, $scope, $http, $log, $location, security, processResponse) {
-            $scope.goto = function(url) {
-                $location.path(url);
-            };
+        function ($rootScope, $scope, $http, $log, security, commonUtils) {
+            $scope.goto = commonUtils.goto;
 
             $scope.logout = function () {
                 $http.post('/logout').then(
                     function () {
                         $rootScope.authenticated = false;
                         $log.info("Successfully logged out");
-                        $location.path("/login");
+                        $scope.goto("/login");
                     },
                     function () {
-                        processResponse.printError("Logout failed");
+                        commonUtils.printError("Logout failed");
                     }
                 );
             };

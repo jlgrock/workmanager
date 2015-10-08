@@ -6,6 +6,7 @@ import org.springframework.http.MediaType
 
 import javax.persistence.*
 import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 import java.time.LocalDateTime
 /**
  *
@@ -22,22 +23,25 @@ class Attachment {
     Integer id
 
     @NotEmpty
-    @Column(name = "filename")
+    @Column(name = "filename", nullable = false)
     String fileName
 
     @NotNull
-    @Column(name = "upload_date")
+    @Column(name = "upload_date", nullable = false)
     LocalDateTime uploadDate
 
     @NotNull
-    @Column(name = "num_bytes")
+    @Column(name = "num_bytes", nullable = false)
     int numberOfBytes
 
     @NotNull
-    @Column(name= "media_type")
+    @Column(name= "media_type", nullable = false)
     MediaType mediaType
 
     @NotNull
+    @Size(min = 0)
+    @Lob
+    @Column(name = "data", nullable = false)
     byte[] data
 
 }
