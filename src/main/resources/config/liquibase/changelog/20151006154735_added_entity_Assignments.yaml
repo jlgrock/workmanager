@@ -1,0 +1,67 @@
+databaseChangeLog:
+    - changeSet:
+        id: 9
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: assignments
+                columns:
+                    - column:
+                        name: id
+                        type: bigint
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_assignments
+                    - column:
+                        name: billable_hours
+                        type: double
+                    - column:
+                        name: num_records
+                        type: int
+                    - column:
+                        name: batch_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: batches(id)
+                            foreignKeyName: fk_assignments_batch
+                    - column:
+                        name: assignment_attachment_id
+                        type: bigint
+                        constraints:
+                            references: attachments(id)
+                            foreignKeyName: fk_assignments_assignment
+                    - column:
+                        name: user_account_id
+                        type: bigint
+                        constraints:
+                            references: user_accounts(id)
+                            foreignKeyName: fk_assignments_user_accounts
+                    - column:
+                        name: is_auto_generated
+                        type: boolean
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: status
+                        type: varchar(20)
+                        constraints:
+                            nullable: false
+            - createTable:
+                tableName: assignments_completed
+                columns:
+                    - column:
+                        name: assignment_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: assignments(id)
+                            foreignKeyName: fk_assignments_completed_batches
+                    - column:
+                        name: attachment_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: fk_assignments_completed_attachments

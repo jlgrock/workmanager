@@ -1,0 +1,38 @@
+# Disable the spring security default configuration from spring-boot-actuator
+management.security.enabled: true
+security.basic.enabled: false
+
+# Disable Jolokia - An http/json bridge for remote JMX access
+endpoints.jolokia.enabled: false
+
+# security configuration (this key should be unique for your application, and kept secret)
+custom.security.rememberme.key: ${rememberMeKey}
+
+async:
+    corePoolSize: 2
+    maxPoolSize: 50
+    queueCapacity: 10000
+
+mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+    protocol: smtp
+    tls: false
+    auth: false
+    from: workmanager@localhost
+
+
+spring:
+    mvc:
+        favicon:
+            enabled: false
+
+swagger:
+    title: workmanager
+    description: workmanager applications and beyond!
+    version: 0.0.1
+    contact: Justin Grant (jlgrock@gmail.com)
+    license: Apache 2.0
+    licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.html

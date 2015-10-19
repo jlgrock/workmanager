@@ -1,0 +1,238 @@
+<div>
+
+    <div class="alert alert-danger" ng-show="uploadError" translate="register.messages.error.fail">
+        <strong>Upload failed!</strong> Please try again later or contact a system administrator.
+    </div>
+
+    <div class="modal fade" id="uploadForm" role="dialog" aria-labelledby="myUserLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form name="createFileUpload" class="form-horizontal" role="form">
+                    <h3>{{ uploadFormTitle }}</h3>
+
+                    <div ng-show="showUserField" class="form-group">
+                        <label class="col-md-2 control-label" for="assignee">Assignee</label>
+                        <div class="input-group controls dropdown col-md-3">
+                            <select id="assignee" class="form-control" required="true" ng-options="'[' + person.id + '] ' + person.fname + ' ' + person.lname for person in people" ng-model="userSelected">
+                                <!--<option ng-repeat="person in people" ng-selected="userId=person.id">[{{ person.id }}] {{ person.fname }} {{ person.lname }}</option>-->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <span class="btn btn-primary btn-file">
+                                Browse&hellip; <input type='file' file-model='file'>
+                            </span>
+                        </span>
+                        <input type="text" class="form-control" value="{{ file.name }}" readonly>
+                    </div>
+                    <div>
+                    <span class="help-block">
+                        Select a File that will be the starting point for an assignment
+                    </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                        </button>
+                        <button type="button" class="btn btn-primary" ng-click="createAssignment()">
+                            <span class="glyphicon glyphicon-upload"></span>&nbsp;<span translate="entity.action.upload">Upload</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="history" role="dialog" aria-labelledby="myUserLabel" aria-hidden="true">
+        <div id="historyView" class="modal-dialog">
+            <div class="modal-content">
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Download Link</th>
+                        <th>ID</th>
+                        <th>Upload Date</th>
+                        <th>Number of Bytes</th>
+                        <th>Processing Info</th>
+                    </tr>
+                    <tr ng-repeat="attachment in history">
+                        <td><a href="" ng-click="downloadAttachment(attachment.id)">download</a></td>
+                        <td>{{ attachment.fileName }}</td>
+                        <td>{{ attachment.uploadDate }}</td>
+                        <td>{{ attachment.numberOfBytes }}</td>
+                        <th></th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="updateHours" role="dialog" aria-labelledby="myUserLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="col-12">
+                    <h4>Set Billable Hours for Assignment {{ modalId }}</h4>
+                    <div class="input-group">
+                        <input name="billableHours" min="0" step="0.1" type="number" class="form-control" data-ng-required="true" ng-pattern="/^[0-9]{1,3}(\.[0-9]{1})?$/" ng-model="modalValue">
+
+                    </div>
+                    <div class="help-block" ng-show="userForm.billableHours.$invalid">Hours must be a valid Number with no more than 999.9 hours and having no more htan one decimal place</div>
+
+                    </p>
+                <span class="help-block">
+                    Please fill in the billable hours that were spent working on this assignment
+                </span>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+                        <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-click="submitHours()">
+                        <span class="glyphicon glyphicon-upload"></span>&nbsp;<span translate="entity.action.upload">Upload</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="batchesView">
+        <!-- Header -->
+        <div id="heading" class="row">
+            <div id="left-heading" class="col-md-2">
+                <h1>Batches</h1>
+            </div>
+            <div id="right-heading" class="col-md-offset-2 col-md-8">
+                <div id="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control search" placeholder="Search Batch Names..." ng-model="searchparams.batchName" ng-change="filterChange()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                    </div><!-- /input-group -->
+                </div>
+                <div id="create-batch-button">
+                    <button type="button" class="btn btn-primary" ng-click="showCreateBatch()">Create Batch</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Batches/Main Content -->
+
+        <accordion close-others="true">
+            <div id="batches" class="row" ng-repeat="batch in batches">
+                <accordion-group id="batch_{{batch.id}}" class="{{batch.class}}" panel-class="{{batch.class}}" is-open="false">
+                    <accordion-heading>
+                        <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i> [{{ batch.id }}] {{ batch.name }}
+                        {{ "(" + batch.status + ")"}}
+                    </accordion-heading>
+
+                    <div class="panel-body">
+                        <div id="batch_{{batch.id}}-table">
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th>Batch Upload Date</th>
+                                    <th># of Records</th>
+                                    <th>Original Batch File</th>
+                                    <th># of Unvalidated Records</th>
+                                    <th>Post-Validation Batch File</th>
+                                </tr>
+                                <tr>
+                                    <td>{{ batch.original.uploadDate | date:'medium'}}</td>
+                                    <td>{{ batch.numberOfRecords }}</td>
+                                    <td><a href="" ng-click="downloadAttachment(batch.original.id)">download</a></td>
+                                    <td>{{ batch.numberOfUnvalidatedRecords }}</td>
+                                    <td><a href="" ng-click="downloadAttachment(batch.postValidation.id)">download</a></td>
+                                </tr>
+                            </table>
+                            <div>
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th>Assignment</th>
+                                        <th>Created</th>
+                                        <th>Records in Assigment</th>
+                                        <th>Original Assignment</th>
+                                        <th>Completed Assignment</th>
+                                        <th>Completed Date</th>
+                                        <th>Status</th>
+                                        <th>Billable Hours</th>
+                                        <th>Delete?</th>
+                                    </tr>
+                                    <tr ng-repeat="assignment in batch.assignments">
+                                        <td>{{ assignment.isAutoGenerated ? "Failed Default Validations" : assignment.userAccount.firstName + " " + assignment.userAccount.lastName}}</td>
+                                        <td>{{ assignment.originalAssignment.uploadDate | date:'medium'}}</td>
+                                        <td>{{ assignment.numberOfRecords }}</td>
+                                        <td><span ng-show="!assignment.isAutoGenerated"><a href="" ng-click="downloadAttachment(assignment.original.id)">download</a></span></td>
+                                        <td>
+                                            <span ng-show="!assignment.isAutoGenerated && !batch.compiled"> <a href="" ng-click="showCompleteAssignment(assignment.original.id)">upload</a></span>
+                                            <span ng-show="assignment.completedExists && !assignment.isAutoGenerated && !batch.compiled"> | </span>
+                                            <span ng-show="assignment.completedExists || assignment.isAutoGenerated">
+                                                <a href="" ng-click="showCompletedAssignmentHistory(assignment.id)">history</a>
+                                            </span>
+                                        </td>
+                                        <td>{{ assignment.completedDate | date:'medium'}}</td>
+                                        <td ng-class="!(assignment.isAutoGenerated) ? assignment.class : ''"> <span ng-show="!assignment.isAutoGenerated">{{ assignment.status }} </span></td>
+                                        <td>
+                                            <span ng-show="!assignment.isAutoGenerated && (assignment.status == 'COMPLETED' || assignment.status == 'NEEDS_HOURS')">{{ assignment.billableHours }} <a href="" ng-click="showSetHours(assignment.id, assignment.billableHours)">(set)</a>
+                                            <a href="" ng-show="assignment.billableHours" ng-click="clearHours(assignment.id)">(clear)</a></span></td>
+                                        <td>
+                                            <span ng-show="!assignment.isAutoGenerated && !batch.compiled"><a href="" ng-click="deleteAssignment(batch.id, assignment.id)"><i class="glyphicon glyphicon-remove redglyph"></i></a></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div ng-show="!batch.reviewedExists">
+                                <a href ng-click="showCreateAssignment(batch.id)"><i class="glyphicon glyphicon-plus"></i> Add Assignment</a>
+                            </div>
+                            <div ng-show="!batch.reviewedExists">
+                                <a href ng-click="startReview(batch.id)"><i class="glyphicon glyphicon-plus"></i> Review Assigments</a>
+                            </div>
+                            <div ng-show="batch.reviewedExists">
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th>Assignment Completion Date</th>
+                                        <th>Compiled Assignments File</th>
+                                        <th>Completed Review</th>
+                                        <th>Cancel Review?</th>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ batch.compiled.uploadDate | date:'medium'}}</td>
+                                        <td><a href="" ng-click="downloadAttachment(batch.compiled.id)">download</a></td>
+                                        <td><a href="" ng-click="completeReview()">upload</a>
+                                            <span ng-show="batch.reviewedExists">
+                                                | <a href="" ng-click="showCompletedReviewHistory(batch.id)">history</a>
+                                            </span>
+                                        </td>
+                                        <td><a href="" ng-click="cancelReview(batch.id)"><i class="glyphicon glyphicon-remove redglyph"></i></a></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </accordion-group>
+            </div>
+        </accordion>
+
+        <!-- Pagination Buttons -->
+        <nav>
+            <ul class="pagination">
+                <li ng-show="links['first'] >= 0" ng-click="loadPage(links['first'])"><a>&lt;&lt;</a></li>
+                <li ng-show="page > 0" ng-click="loadPage(links['prev'] || 0)"><a>&lt;</a></li>
+                <li ng-show="page > 1" ng-click="loadPage(page - 2)"><a>{{page - 1}}</a></li>
+                <li ng-show="page > 0" ng-click="loadPage(page - 1)"><a>{{page}}</a></li>
+                <li class="active"><a>{{page + 1}}</a></li>
+                <li ng-show="page < links['last']" ng-click="loadPage(page + 1)"><a>{{page + 2}}</a></li>
+                <li ng-show="page < links['last'] - 1" ng-click="loadPage(page + 2)"><a>{{page + 3}}</a></li>
+                <li ng-show="links['next']" ng-click="loadPage(links['next'])"><a>&gt;</a></li>
+                <li ng-show="links['last'] > 0" ng-click="loadPage(links['last'])"><a>&gt;&gt;</a></li>
+            </ul>
+        </nav>
+
+    </div>
+
+</div>

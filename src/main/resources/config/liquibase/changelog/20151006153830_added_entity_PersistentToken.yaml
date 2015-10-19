@@ -1,0 +1,38 @@
+databaseChangeLog:
+    - changeSet:
+        id: 4
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: persistent_tokens
+                columns:
+                    - column:
+                        name: series
+                        type: varchar(255)
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_persistent_tokens
+                    - column:
+                        name: user_id
+                        type: bigint
+                    - column:
+                        name: token_value
+                        type: varchar(255)
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: token_date
+                        type: date
+                    - column:
+                        name: ip_address
+                        type: varchar(39)
+                    - column:
+                        name: user_agent
+                        type: varchar(255)
+            - addForeignKeyConstraint:
+                baseColumnNames: user_id
+                baseTableName: persistent_tokens
+                constraintName: fk_user_persistent_token
+                referencedColumnNames: id
+                referencedTableName: user_accounts

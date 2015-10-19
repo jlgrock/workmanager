@@ -1,0 +1,40 @@
+databaseChangeLog:
+    - changeSet:
+        id: 7
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: attachments
+                columns:
+                    - column:
+                        name: id
+                        type: bigint
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_attachments
+                    - column:
+                        name: data
+                        type: BLOB
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: filename
+                        type: varchar(255)
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: upload_date
+                        type: datetime
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: num_bytes
+                        type: int
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: media_type
+                        type: varchar(255)
+                        constraints:
+                            nullable: false

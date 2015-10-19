@@ -1,0 +1,18 @@
+<div ng-cloak>
+    <div class="row" ng-hide="isAuthenticated()">
+        <div class="col-md-4">
+            <span class="dna img-responsive img-rounded"></span>
+        </div>
+        <div class="col-md-8">
+            <h1 translate="main.title">Welcome to the Informatix Workmanager!</h1>
+            <p class="lead" translate="main.subtitle">Please log in or talk to your administrator about registration</p>
+
+            <div ng-switch="isAuthenticated()">
+                <div class="alert alert-success" ng-switch-when="true" translate="main.logged.message" translate-values="{username: '{{account.login}}'}">
+                    You are logged in as user "{{account.login}}".
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

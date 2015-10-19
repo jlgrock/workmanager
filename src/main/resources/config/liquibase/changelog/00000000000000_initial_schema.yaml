@@ -1,0 +1,13 @@
+databaseChangeLog:
+    - changeSet:
+        id: 1
+        author: jlgrock
+        dbms: postgresql,oracle
+        changes:
+            - createSequence:
+                incrementBy: 1
+                maxValue: 9223372036854775807
+                minValue: 1000
+                sequenceName: hibernate_sequence
+                startValue: 1000
+

@@ -1,0 +1,27 @@
+databaseChangeLog:
+    - changeSet:
+        id: 5
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: verification_tokens
+                columns:
+                    - column:
+                        name: id
+                        type: bigint
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_verification_tokens
+                    - column:
+                        name: token
+                        type: varchar(255)
+                        constraints:
+                            nullable: false
+                    - column:
+                        name: user_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: user_accounts(id)
+                            foreignKeyName: fk_verification_tokens_user_accounts

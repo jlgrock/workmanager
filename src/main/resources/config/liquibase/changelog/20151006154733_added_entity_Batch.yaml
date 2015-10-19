@@ -1,0 +1,67 @@
+databaseChangeLog:
+    - changeSet:
+        id: 8
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: batches
+                columns:
+                    - column:
+                        name: id
+                        type: bigint
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_batches
+                    - column:
+                        name: name
+                        type: varchar(255)
+                    - column:
+                        name: num_records
+                        type: int
+                    - column:
+                        name: original_attachment_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: fk_batches_attachment
+                    - column:
+                        name: num_unvalidated_records
+                        type: int
+                    - column:
+                        name: post_validation_attachment_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: fk_batches_attachment_postvalidation
+                    - column:
+                        name: compiled_attachment_id
+                        type: bigint
+                        constraints:
+                            nullable: true
+                            references: attachments(id)
+                            foreignKeyName: fk_batchess_compiled_attachment_attachments
+                    - column:
+                        name: status
+                        type: varchar(20)
+                        constraints:
+                            nullable: false
+            - createTable:
+                tableName: batches_reviewed
+                columns:
+                    - column:
+                        name: batch_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: batches(id)
+                            foreignKeyName: fk_batches_reviewed_batches
+                    - column:
+                        name: attachment_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: attachments(id)
+                            foreignKeyName: fk_batches_reviewed_attachments

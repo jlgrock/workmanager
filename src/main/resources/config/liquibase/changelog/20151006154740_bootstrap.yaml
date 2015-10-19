@@ -1,0 +1,31 @@
+databaseChangeLog:
+    - changeSet:
+        id: 9
+        author: jlgrock
+        changes:
+            - loadData:
+                encoding: UTF-8
+                file: config/liquibase/users.csv
+                separator: ;
+                tableName: user_accounts
+                columns:
+                    - column:
+                        name: activated
+                        type: boolean
+                    - column:
+                        name: created_date
+                        type: timestamp
+            - dropDefaultValue:
+                tableName: user_accounts
+                columnName: created_date
+                columnDataType: datetime
+            - loadData:
+                encoding: UTF-8
+                file: classpath:config/liquibase/authorities.csv
+                separator: ;
+                tableName: authorities
+            - loadData:
+                encoding: UTF-8
+                file: classpath:config/liquibase/users_authorities.csv
+                separator: ;
+                tableName: user_authorities

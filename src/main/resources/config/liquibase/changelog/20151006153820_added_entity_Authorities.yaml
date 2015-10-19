@@ -1,0 +1,36 @@
+databaseChangeLog:
+    - changeSet:
+        id: 3
+        author: jlgrock
+        changes:
+            - createTable:
+                tableName: authorities
+                columns:
+                    - column:
+                        name: name
+                        type: varchar(50)
+                        constraints:
+                            primaryKey: true
+                            nullable: false
+                            primaryKeyName: pk_authorities
+            - createTable:
+                tableName: user_authorities
+                columns:
+                    - column:
+                        name: user_id
+                        type: bigint
+                        constraints:
+                            nullable: false
+                            references: user_accounts(id)
+                            foreignKeyName: fk_user_authorities_user_id
+                    - column:
+                        name: authority_name
+                        type: varchar(50)
+                        constraints:
+                            nullable: false
+                            #references: authorities(name)
+                            #foreignKeyName: fk_user_authorities_authority_name
+            - addPrimaryKey:
+                columnNames: user_id, authority_name
+                tableName: user_authorities
+                constraintName: pk_user_authorities

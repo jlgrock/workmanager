@@ -1,0 +1,9 @@
+{
+    "main": {
+        "title": "Welcome to the Informatix Workmanager!",
+        "subtitle": "Please log in or talk to your administrator about registration",
+        "logged": {
+            "message": "You are logged in as user \"{{username}}\"."
+        }
+    }
+}

@@ -1,233 +1,200 @@
 buildscript {
     repositories {
-        maven { url "http://repo.spring.io/libs-snapshot" }
-        maven { url 'http://repo.spring.io/plugins-release' }
         mavenLocal()
-        mavenCentral()
         jcenter()
     }
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE"
-        classpath 'com.eriwen:gradle-css-plugin:1.11.1'
-        classpath 'com.eriwen:gradle-js-plugin:1.12.0'
-        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.4'
+        classpath('org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE')
+        classpath('com.moowork.gradle:gradle-node-plugin:0.10')
+        classpath('com.moowork.gradle:gradle-grunt-plugin:0.10')
     }
 }
 
-plugins {
-    id "io.spring.dependency-management" version "0.4.0.RELEASE"
-}
-
-version projVersion
-group "com.github.jlgrock.autograder"
-
-// IDE plugins
 apply plugin: 'groovy'
+sourceCompatibility=1.8
+targetCompatibility=1.8
+apply plugin: 'maven'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'idea'
 
-// tool for running spring boot environment
-apply plugin: 'spring-boot'
-apply plugin: 'io.spring.dependency-management'
-
-// standard web packaging and deployment
-apply plugin: 'war'
-apply plugin: 'js'
-apply plugin: 'css'
+defaultTasks 'bootRun'
 
 
-ext {
-    gradleWrapperVersion = project.gradleWrapperVersion
+bootRepackage {
+   mainClass = 'com.github.jlgrock.informatix.workmanager.Application'
 }
 
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url "http://repo.spring.io/libs-snapshot" }
+springBoot {
+    mainClass = 'com.github.jlgrock.informatix.workmanager.Application'
 }
+
+bootRun {
+    addResources = false
+}
+
+apply from: 'gradle/config/yeoman.gradle'
+apply from: 'gradle/config/sonar.gradle'
+
+apply from: 'gradle/config/liquibase.gradle'
+apply from: 'gradle/config/gatling.gradle'
+
+apply from: 'gradle/config/mapstruct.gradle'
+
+if (project.hasProperty('prod')) {
+    apply from: 'gradle/config/profile_prod.gradle'
+} else if (project.hasProperty('fast')) {
+    apply from: 'gradle/config/profile_fast.gradle'
+} else {
+  apply from: 'gradle/config/profile_dev.gradle'
+}
+
+group = 'com.github.jlgrock.informatix.workmanager'
+version = proj_version
+
+description = ''
 
 configurations {
     providedRuntime
 }
 
+repositories {
+    maven { url 'http://repo.spring.io/milestone' }
+    maven { url 'http://repo.spring.io/snapshot' }
+    maven { url 'https://repository.jboss.org/nexus/content/repositories/releases' }
+    maven { url 'https://oss.sonatype.org/content/repositories/releases' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'http://repo.maven.apache.org/maven2' }
+}
+
 configurations.all {
-    exclude group: 'commons-logging'
-    exclude group: 'org.apache.logging.log4j'
-    exclude group: 'log4j'
+  resolutionStrategy {
+    // force certain versions of dependencies (including transitive)
+    //  *append new forced modules:
+    force group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    force group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+
+  }
 }
 
 dependencies {
-    compile(
-            "org.codehaus.groovy:groovy-all:2.3.6", // Groovy
-            "org.springframework.boot:spring-boot-starter-web", // Webapp
-            "org.springframework.boot:spring-boot-starter-data-jpa", // for Data
-            "org.springframework.boot:spring-boot-starter-security", // for creating user authentication
-            "org.liquibase:liquibase-core:3.4.1", // For stateful database migrations
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovy_version
 
-            "org.apache.poi:poi:3.13-beta1", // Apache POI for reading/writing excel documents
-            'org.hibernate:hibernate-validator:5.2.0.Beta1', // add JSR-303 annotations
-            'org.slf4j:slf4j-api:1.7.12', // Logging
-
-            // UI stuff
-            "org.webjars:jquery:2.1.1", // for DOM manipulation and use in angularJs for server communication
-            "org.webjars:angularjs:1.3.8", // for client-server eventing
-            "org.webjars:bootstrap:3.2.0", // for style
-            "org.webjars.bower:angular-bootstrap:0.12.1", // binds bootstrap css to angularjs
-
-    )
-
-    // jars provided at runtime
-    runtime(
-            "postgresql:postgresql:9.1-901-1.jdbc4",
-            "ch.qos.logback:logback-classic:1.1.3",
-    )
-
-    providedRuntime(
-            "org.springframework.boot:spring-boot-starter-tomcat",
-
-    )
-
-    testCompile(
-            "org.springframework.boot:spring-boot-starter-test", // for testing spring stuff
-            "org.hamcrest:hamcrest-core:1.3", // for using matchers
-            "org.spockframework:spock-core:1.0-groovy-2.4" // to use Spock, the best way to test your code
-    )
-
-    testRuntime (
-            "cglib:cglib-nodep:3.1",  // allows mocking of classes (in addition to interfaces)
-            "org.objenesis:objenesis:2.1", // allows mocking of classes without default constructor (together with CGLIB)
-            "com.h2database:h2:1.4.182" //test db
-    )
-
-}
-
-
-
-def webDir = "src/main/webapp"
-def appDir = "${webDir}/app"
-
-combineJs {
-    group = null // hides from the 'gradle tasks'
-
-    // pull together the source from string & file lists
-    //  eg. def core = ["$webAppDirName/init.js",...]
-    source = ["${appDir}/app.js"] +
-            fileTree(dir: "${appDir}/directives", include: "**/*.js" ) +
-            fileTree(dir: "${appDir}/services", include: "**/*.js" ) +
-            fileTree(dir: "${appDir}/controllers", include: "**/*.js" )
-
-    include "*.js"
-    exclude "*.min.js"
-
-    // show the resolved files when gradle is run with -d
-    source.each{ logger.debug ("$it") }
-
-    dest = file("${buildDir}/js/${projName}.${version}.js")
-}
-
-combineCss {
-    group = null // hides from the 'gradle tasks'
-
-    source = ["${webDir}/css"]
-    dest = "${buildDir}/all.css"
-
-    source.each { logger.info "Combining $it"}
-}
-
-task combine(dependsOn: [combineJs, combineCss]) {
-    group = "Build"
-    description = "Combine all appropraite JavaScript files and all appropriate CSS files"
-}
-
-compileJava {
-    //enable compilation in a separate daemon process
-    options.fork = true
-    //enable incremental compilation
-    options.incremental = true
-}
-
-compileGroovy {
-    //enable compilation in a separate daemon process
-    options.fork = true
-    //enable incremental compilation
-    options.incremental = true
-}
-
-minifyJs {
-    group = null // hides from the 'gradle tasks'
-    it.dependsOn tasks.combineJs
-
-    source = combineJs
-    dest = file("${buildDir}/js/${projName}.${version}.min.js")
-    sourceMap = file("${buildDir}/js/${projName}.${version}.sourcemap.json")
-    closure {
-        warningLevel = 'QUIET'
-        //compilerOptions.defineReplacements = ['MY_DBUG_FLAG':false]
+    compile group: 'io.dropwizard.metrics', name: 'metrics-core'
+    compile group: 'io.dropwizard.metrics', name: 'metrics-annotation', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-ehcache', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-graphite', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-healthchecks', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-jvm', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-servlet', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-json', version: dropwizard_metrics_version
+    compile (group: 'io.dropwizard.metrics', name: 'metrics-servlets', version: dropwizard_metrics_version) {
+        exclude(module: 'metrics-healthchecks')
     }
-}
-
-minifyCss {
-    group = null // hides from the 'gradle tasks'
-    it.dependsOn combineCss
-
-    source = combineCss
-    dest = "${buildDir}/css/${projName}.${version}.min.css"
-    yuicompressor { // Optional
-        lineBreakPos = -1
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-json-org', version: jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-hppc', version: jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-hibernate4', version: jackson_version
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    compile (group: 'com.ryantenney.metrics', name: 'metrics-spring', version: metrics_spring_version) {
+        exclude(module: 'metrics-core')
+        exclude(module: 'metrics-healthchecks')
     }
-}
-
-task minify(dependsOn: [minifyJs, minifyCss]) {
-    group = "Build"
-    description = "Minify both the JavaScript and CSS files"
-}
-
-gzipJs {
-    group = null // hides from the 'gradle tasks'
-    it.dependsOn tasks.minifyJs
-
-    source = minifyJs.dest
-    dest = file("${buildDir}/js/${projName}.${version}.min.js.gz")
-}
-
-gzipCss {
-    group = null // hides from the 'gradle tasks'
-    it.dependsOn tasks.minifyCss
-
-    source = minifyCss
-    dest = "${buildDir}/css/${projName}.${version}.min.css.gz"
-}
-
-task gzip(dependsOn: [gzipJs, gzipCss]) {
-    group = "Build"
-    description = "Gzip both the JavaScript and CSS files"
-}
-
-eclipse {
-    classpath {
-        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    compile(group: 'com.zaxxer', name: 'HikariCP', version: HikariCP_version) {
+        exclude(module: 'tools')
     }
+    compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
+    compile group: 'commons-io', name: 'commons-io', version: commons_io_version
+    compile group: 'javax.inject', name: 'javax.inject', version: javax_inject_version
+    compile group: 'javax.transaction', name: 'javax.transaction-api'
+    compile group: 'org.apache.geronimo.javamail', name: 'geronimo-javamail_1.4_mail', version: geronimo_javamail_1_4_mail_version
+    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_entitymanager_version
+    compile group: 'org.hibernate', name: 'hibernate-envers'
+    compile (group: 'org.hibernate', name: 'hibernate-ehcache') {
+        exclude(module: 'ehcache-core')
+    }
+    compile group: 'org.hibernate', name: 'hibernate-validator'
+    compile group: 'org.jadira.usertype', name: 'usertype.core', version: usertype_core_version
+    compile (group: 'org.liquibase', name: 'liquibase-core', version: liquibase_core_version) {
+        exclude(module: 'jetty-servlet')
+    }
+    compile group: 'com.mattbertolini', name: 'liquibase-slf4j', version: liquibase_slf4j_version
+    compile group: 'org.springframework.boot', name: 'spring-boot-actuator'
+    compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure'
+    compile group: 'org.springframework.boot', name: 'spring-boot-loader-tools'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-logging'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-web') {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-cloudfoundry-connector'
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-spring-service-connector'
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-localconfig-connector'
+    compile(group: 'org.springframework', name: 'spring-context-support') {
+        exclude(module: 'quartz')
+    }
+    compile group: 'org.springframework.security', name: 'spring-security-config', version: spring_security_version
+    compile group: 'org.springframework.security', name: 'spring-security-data', version: spring_security_version
+    compile group: 'org.springframework.security', name: 'spring-security-web', version: spring_security_version
+    compile(group: 'io.springfox', name: 'springfox-swagger2', version: springfox_version){
+        exclude module: 'mapstruct'
+    }
+
+    compile group: 'org.postgresql', name: 'postgresql', version: postgresql_version
+    compile group: 'fr.ippon.spark.metrics', name: 'metrics-spark-reporter', version: metrics_spark_reporter_version
+    compile group: 'org.mapstruct', name: 'mapstruct-jdk8', version: mapstruct_version
+
+
+    testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: awaility_version
+    testCompile group: 'com.jayway.jsonpath', name: 'json-path'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty'
+	testCompile group: 'org.assertj', name: 'assertj-core', version: assertj_core_version
+    testCompile group: 'junit', name: 'junit'
+    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile group: 'com.mattbertolini', name: 'liquibase-slf4j', version: liquibase_slf4j_version
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library'
+    testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: gatling_version
+
+    testCompile group: 'com.h2database', name: 'h2'
+
+}
+
+clean {
+    delete "target"
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
+    gradleVersion = wrapper_version
 }
 
-war {
-    it.dependsOn tasks.gzip
-
-    from( "${buildDir}/js", {
-        into "minified"
-    })
-    from( "${buildDir}/css", {
-        into "minified"
-    })
+task stage(dependsOn: 'bootRepackage') {
 }
 
-// Lets you remote debug the Spring Boot application.  Useful if you are having issues running it in your IDE
-// to use, just uncomment this out
+task prod {
+    run { systemProperty "spring.profiles.active", "prod" }
+}
+
+bootRun.mustRunAfter prod
+
+task fast {
+    run { systemProperty "spring.profiles.active", "dev,fase" }
+}
+bootRun.mustRunAfter fast
+
 bootRun {
-    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y']
+
+
+    jvmArgs = [
+        // Lets you remote debug the Spring Boot application.  Useful if you are having issues running it in your IDE
+        // to use, just uncomment this out
+        '-Xdebug',
+        '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y',
+
+        // forces you to pass in, via the command line, the security key.  This way, it won't require us to check the security key in
+        "-DrememberMeKey=${rememberMeKey}"
+    ]
 }
