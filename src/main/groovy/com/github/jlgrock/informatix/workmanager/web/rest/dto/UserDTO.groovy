@@ -16,6 +16,9 @@ import javax.validation.constraints.Size
 @EqualsAndHashCode
 public class UserDTO {
 
+    static final int PASSWORD_MIN_LENGTH = 5;
+    static final int PASSWORD_MAX_LENGTH = 20;
+
     @Pattern(regexp = "^[a-z0-9]*\$")
     @NotNull
     @Size(min = 1, max = 50)

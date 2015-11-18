@@ -191,10 +191,10 @@ bootRun {
     jvmArgs = [
         // Lets you remote debug the Spring Boot application.  Useful if you are having issues running it in your IDE
         // to use, just uncomment this out
-        '-Xdebug',
-        '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y',
+//        '-Xdebug',
+//        '-Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=y',
 
         // forces you to pass in, via the command line, the security key.  This way, it won't require us to check the security key in
-        "-DrememberMeKey=${rememberMeKey}"
+        //"-DrememberMeKey=${rememberMeKey}"
     ]
 }

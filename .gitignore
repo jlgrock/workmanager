@@ -21,4 +21,9 @@ gradle-app.setting
 http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# avoid putting bower resources into the project
+node_modules/
+
+# avoid checking in bower/swagger components
+bower_components/
 

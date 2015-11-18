@@ -99,6 +99,7 @@ class GZipServletFilter implements Filter {
     }
 
     private boolean acceptsGZipEncoding(HttpServletRequest httpRequest) {
-        httpRequest.getHeader("Accept-Encoding") != null && acceptEncoding.contains("gzip")
+        String acceptEncoding = httpRequest.getHeader("Accept-Encoding");
+        return acceptEncoding != null && acceptEncoding.contains("gzip")
     }
 }
